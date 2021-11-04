@@ -1,3 +1,8 @@
+# Example STDOUT:
+# 12607|b3ac26b5-fdb4-43bd-9d7a-c5cc821a96df|1|2021-09-01|0
+# 12607|b3ac26b5-fdb4-43bd-9d7a-c5cc821a96df|1|2021-10-01|0
+# 12607|b3ac26b5-fdb4-43bd-9d7a-c5cc821a96df|2|2021-09-01|0
+
 intervals = [
   {start_of_month: '2021-09-01', end_of_month: '2021-10-01'},
   {start_of_month: '2021-10-01', end_of_month: '2021-11-01'}
