@@ -18,11 +18,13 @@
 
 api = Adzerk::Api.new(cache_requests: true)
 
+end_date = Time.current.beginning_of_day - 1.day
+
 report = begin
   receipt = api.create_report(
     group_by: %w[campaignid],
     start_date: Advertising::Flight.order(:created_at).first.created_at,
-    end_date: Time.current.beginning_of_day - 1.day
+    end_date: end_date
   )
   api.poll_report(report_id: receipt[:Id])
 end
@@ -33,8 +35,8 @@ report[:Result][:Records].first[:Details].each do |detail|
 end
 
 def adjusted_campaign_budget(account)
-  credits_amount = account.credit_entries.reject { |e| e.description.match /pretransfer\.cash_overage/ }.sum { |e| e.credit_amounts.sum(:amount) }
-  non_settlement_debits_amount = account.debit_entries.reject { |e| Advertising::Utility.settlement_entry? e }.sum { |e| e.debit_amounts.sum(:amount) }
+  credits_amount = account.credit_entries.where("created_at < ?", end_date).reject { |e| e.description.match /pretransfer\.cash_overage/ }.sum { |e| e.credit_amounts.sum(:amount) }
+  non_settlement_debits_amount = account.debit_entries.where("created_at < ?", end_date).reject { |e| Advertising::Utility.settlement_entry? e }.sum { |e| e.debit_amounts.sum(:amount) }
   credits_amount - non_settlement_debits_amount
 end
 
