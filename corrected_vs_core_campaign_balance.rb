@@ -1,5 +1,4 @@
 # This script calculates the campaign balances for all Advertising::Flight records by excluding pretransfer.cash_overage credit amounts
-# TODO: Ensure core data reflects the same time period as the Kevel-reported revenue
 
 # Formula: transferred from org to campaign
 # - transferred from campaign to org
@@ -18,11 +17,13 @@
 
 api = Adzerk::Api.new(cache_requests: true)
 
+end_date = Time.current.beginning_of_day - 1.day
+
 report = begin
   receipt = api.create_report(
     group_by: %w[campaignid],
     start_date: Advertising::Flight.order(:created_at).first.created_at,
-    end_date: Time.current.beginning_of_day - 1.day
+    end_date: end_date
   )
   api.poll_report(report_id: receipt[:Id])
 end
@@ -32,9 +33,9 @@ report[:Result][:Records].first[:Details].each do |detail|
   adzerk_campaigns[detail[:Grouping][:CampaignId]] = (detail[:TrueRevenue] * 100).to_i
 end
 
-def adjusted_campaign_budget(account)
-  credits_amount = account.credit_entries.reject { |e| e.description.match /pretransfer\.cash_overage/ }.sum { |e| e.credit_amounts.sum(:amount) }
-  non_settlement_debits_amount = account.debit_entries.reject { |e| Advertising::Utility.settlement_entry? e }.sum { |e| e.debit_amounts.sum(:amount) }
+def adjusted_campaign_budget(account, end_date)
+  credits_amount = account.credit_entries.where("created_at < ?", end_date).reject { |e| e.description.match /pretransfer\.cash_overage/ }.sum { |e| e.credit_amounts.sum(:amount) }
+  non_settlement_debits_amount = account.debit_entries.where("created_at < ?", end_date).reject { |e| Advertising::Utility.settlement_entry? e }.sum { |e| e.debit_amounts.sum(:amount) }
   credits_amount - non_settlement_debits_amount
 end
 
@@ -42,8 +43,8 @@ Advertising::Flight.find_each do |flight|
   organization_id = flight.campaign.listing.advertising_organization.id
   adzerk_campaign_revenue = adzerk_campaigns[flight.campaign.adzerk_id]
 
-  cash_balance = adjusted_campaign_budget(flight.cash_account)
-  promo_balance = adjusted_campaign_budget(flight.monthly_promo_account)
+  cash_balance = adjusted_campaign_budget(flight.cash_account, end_date)
+  promo_balance = adjusted_campaign_budget(flight.monthly_promo_account, end_date)
 
   if !adzerk_campaign_revenue
     corrected_campaign_balance = ''
@@ -51,7 +52,10 @@ Advertising::Flight.find_each do |flight|
     corrected_campaign_balance = cash_balance + promo_balance - adzerk_campaign_revenue
     corrected_campaign_balance = [corrected_campaign_balance, 0].max
   end
+  
+  core_available_cash_balance = (flight.cash_account.balance(to_date: end_date) - flight.send(:revenue_spent, cached: false).cash_spent_amount).to_i
+  core_available_promo_balance = (flight.monthly_promo_account.balance(to_date: end_date) - flight.send(:revenue_spent, cached: false).promo_spent_amount).to_i
 
-  core_campaign_balance = flight.available_cash_balance + flight.available_promo_balance
-  puts "#{organization_id}|#{flight.id}|#{corrected_campaign_balance}|#{core_campaign_balance}|#{flight.available_cash_balance}|#{flight.available_promo_balance}"
+  core_campaign_balance = core_available_cash_balance + flight.available_promo_balance
+  puts "#{organization_id}|#{flight.id}|#{corrected_campaign_balance}|#{core_campaign_balance}|#{core_available_cash_balance}|#{core_available_promo_balance}"
 end
