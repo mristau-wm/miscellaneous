@@ -1,3 +1,4 @@
+######### Constants and helper methods
 END_DATE = Time.current.beginning_of_day - 1.day
 FLIGHTS = Advertising::Flight.all
 
