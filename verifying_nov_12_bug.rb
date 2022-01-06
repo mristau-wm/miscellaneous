@@ -5,10 +5,11 @@
 # 
 # Final report: https://docs.google.com/spreadsheets/d/148BHJeUUska5igTIPM3LxSRGW7a4skIw4U2IvFkgRPM
 
-active_flight_ids = Advertising::FlightDelta.select("advertising_flight_id, sum(revenue)").where("created_at >= '2021-11-12'").group("advertising_flight_id").having("sum(revenue) > 0").order("advertising_flight_id asc").pluck(:advertising_flight_id)
+# active_flight_ids = Advertising::FlightDelta.select("advertising_flight_id, sum(revenue)").where("created_at >= '2021-11-12'").group("advertising_flight_id").having("sum(revenue) > 0").order("advertising_flight_id asc").pluck(:advertising_flight_id)
 # SELECT advertising_flight_id, sum(revenue) FROM "advertising_flight_deltas" WHERE (created_at >= '2021-11-12') GROUP BY "advertising_flight_deltas"."advertising_flight_id" HAVING (sum(revenue) > 0) ORDER BY advertising_flight_id asc
 
-Advertising::Flight.where(id: active_flight_ids).find_each do |flight|
+# Advertising::Flight.where(id: active_flight_ids).find_each do |flight|
+Advertising::Flight.find_each do |flight|
   organization_id = flight.campaign.listing.advertising_organization.id
   organization_salesforce_id = flight.campaign.listing.advertising_organization.salesforce_id
   core_balance = flight.balance # cash + promo
