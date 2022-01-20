@@ -34,17 +34,16 @@ Advertising::Campaign.find_each do |campaign|
   # next if kevel_budget <= core_budget
   # next if kevel_budget.zero?
 
-  grant_amount = kevel_budget - core_budget
-
-  # temp, for pre-lim analysis
-  grant_amount = 0 if kevel_budget <= core_budget
-  grant_amount = 0 if kevel_budget.zero?
-
   core_spend = flight.settled_revenue + flight.unsettled_revenue
   kevel_spend = flight.revenue_from_deltas
 
   core_balance = flight.balance
   kevel_balance = flight.lifetime_cap - flight.revenue_from_deltas
+
+  # temp, for pre-lim analysis
+  grant_amount = kevel_balance - core_balance
+  grant_amount = 0 if kevel_balance <= core_balance
+  grant_amount = 0 if kevel_budget.zero?
 
   puts "#{campaign.listing.advertising_organization.id}|#{campaign.id}|#{campaign.adzerk_id}|#{flight.adzerk_id}|#{core_budget}|#{kevel_budget}|#{grant_amount}|#{core_spend}|#{kevel_spend}|#{core_balance}|#{kevel_balance}"
 end
