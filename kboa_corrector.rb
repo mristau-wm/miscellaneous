@@ -87,6 +87,9 @@ class Corrector
           price_value: credit.floor,
           entry_description: 'advertising.cor9294.cash_credit'
         }
+        
+        # IMPORTANT: This will recalculate what the kevel lifetime cap should be.
+        # If the lifetime cap should remain unchanged, use a different transfer method.
         result = Advertising::TransferService::Cash.call transfer_args
         # result = OpenStruct.new success?: true
 
