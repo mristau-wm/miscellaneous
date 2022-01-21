@@ -6,7 +6,7 @@
 # So, for campaigns with kevel budget greater than core budget,
 # we want to sync them. We'll credit the campaign with the difference.
 #
-# Output example: https://docs.google.com/spreadsheets/d/1_EX-6GCZze-vYexEuQc_HwCA2kVegDwDnKD1wb0zKWI/edit#gid=1322562653
+# Results: https://docs.google.com/spreadsheets/d/1VYnhB7cmtPCzypaXOjO42zA-MRVOarI1vdcVFMRDvog/edit#gid=606809187
 
 class Corrector
   attr_accessor :rows, :entries
@@ -70,12 +70,12 @@ class Corrector
 
       Advertising::CampaignSettlementResult.transaction do
         # transfer into organization out of money printer
-        # entry = create_entry \
-        #   Advertising::Accounts.cash_correction,
-        #   org.cash_account,
-        #   credit,
-        #   'advertising.kboa_correction.cash_credit'
-        # row[:entries] << entry.inspect
+        entry = create_entry \
+          Advertising::Accounts.cash_correction,
+          org.cash_account,
+          credit,
+          'advertising.kboa_correction.cash_credit'
+        row[:entries] << entry.inspect
         row[:notes] << ["successfully added cash_spent to org"]
 
         # transfer into campaign and out of organization
@@ -84,11 +84,11 @@ class Corrector
           debit_entity: org,
           credit_entity: flight,
           user_id: nil,
-          price_value: credit,
+          price_value: credit.floor,
           entry_description: 'advertising.cor9294.cash_credit'
         }
-        # result = Advertising::TransferService::Cash.call transfer_args
-        result = OpenStruct.new success?: true
+        result = Advertising::TransferService::Cash.call transfer_args
+        # result = OpenStruct.new success?: true
 
         if result.success?
           row[:notes] << ["successful transfer #{transfer_args}"]
