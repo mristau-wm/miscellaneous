@@ -1,5 +1,7 @@
 dry_run = true
 
+# Dry run results against Acceptance: https://gist.github.com/mristau-wm/dd4c69f46a3b4d462ac64729b33120d6
+
 Advertising::Flight.find_each do |flight|
   campaign = flight.campaign
   organization = campaign.listing.advertising_organization
