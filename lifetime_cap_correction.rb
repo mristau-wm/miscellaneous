@@ -1,7 +1,5 @@
 dry_run = true
 
-# Dry run results against Acceptance: https://gist.github.com/mristau-wm/dd4c69f46a3b4d462ac64729b33120d6
-
 Advertising::Flight.find_each do |flight|
   campaign = flight.campaign
   organization = campaign.listing.advertising_organization
@@ -21,7 +19,7 @@ Advertising::Flight.find_each do |flight|
   transfer_service = Advertising::TransferService::Cash.new(transfer_args)
   current_lifetime_cap = transfer_service.send(:new_lifetime_cap, flight)
 
-  puts "Current lifetime cap: \$#{current_lifetime_cap}. New lifetime cap: \$#{accurate_lifetime_cap}"
+  puts "Current lifetime cap: \$#{current_lifetime_cap}. Accurate lifetime cap: \$#{accurate_lifetime_cap}"
 
   if current_lifetime_cap == accurate_lifetime_cap
     puts "Skipping flight. Lifetime cap does not need correction."
