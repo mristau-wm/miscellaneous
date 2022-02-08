@@ -10,7 +10,7 @@ Advertising::Flight.find_each do |flight|
 
   puts "Processing flight #{flight.id} #{'(dry run)' if dry_run}"
 
-  # does this need correction?
+  # Determine if the flight needs correction
   accurate_lifetime_cap = ((flight.revenue_from_deltas.to_i + flight.balance) / 100.0).ceil
 
   transfer_args = {
@@ -30,7 +30,7 @@ Advertising::Flight.find_each do |flight|
     next
   end
 
-  # Flight needs correction. Determine the amount
+  # Determine the correction amount
   adjustment_amount = (current_lifetime_cap - accurate_lifetime_cap).abs
 
   # Apply the correction for that amount
