@@ -37,7 +37,6 @@ Advertising::Flight.find_each do |flight|
   if current_lifetime_cap > accurate_lifetime_cap
     puts "Subtracting \$#{adjustment_amount} from lifetime cap"
 
-
     unless dry_run
       Plutus::Entry.create!(
         description: 'advertising.lifetime_cap_adjustment.credit_exclusion',
