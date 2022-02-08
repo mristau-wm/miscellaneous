@@ -19,7 +19,7 @@ Advertising::Flight.find_each do |flight|
   transfer_service = Advertising::TransferService::Cash.new(transfer_args)
   current_lifetime_cap = transfer_service.send(:new_lifetime_cap, flight)
 
-  puts "Current lifetime cap: #{current_lifetime_cap}. New lifetime cap: #{accurate_lifetime_cap}"
+  puts "Current lifetime cap: \$#{current_lifetime_cap}. New lifetime cap: \$#{accurate_lifetime_cap}"
 
   if current_lifetime_cap == accurate_lifetime_cap
     puts "Skipping flight. Lifetime cap does not need correction."
@@ -27,11 +27,11 @@ Advertising::Flight.find_each do |flight|
   end
 
   # Flight needs correction. Determine the amount
-  adjustment_amount = abs(current_lifetime_cap - accurate_lifetime_cap)
+  adjustment_amount = (current_lifetime_cap - accurate_lifetime_cap).abs
 
   # Apply the correction for that amount
   if current_lifetime_cap > accurate_lifetime_cap
-    puts "Subtracting #{adjustment_amount} from lifetime cap"
+    puts "Subtracting \$#{adjustment_amount} from lifetime cap"
 
 
     unless dry_run
@@ -48,7 +48,7 @@ Advertising::Flight.find_each do |flight|
       );nil
     end
   else
-    puts "Adding #{adjustment_amount} to lifetime cap"
+    puts "Adding \$#{adjustment_amount} to lifetime cap"
 
     unless dry_run
       Plutus::Entry.create!(
