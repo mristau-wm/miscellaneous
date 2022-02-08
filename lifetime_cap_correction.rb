@@ -1,5 +1,9 @@
 dry_run = true
 
+# Results of dry run
+# - Acceptance: https://gist.github.com/mristau-wm/dd4c69f46a3b4d462ac64729b33120d6#file-lifetime_cap_correction_acceptance_results-txt
+# - Production: https://gist.github.com/mristau-wm/dd4c69f46a3b4d462ac64729b33120d6#file-results-of-fry-run-of-lifetime_cap_correction-rb-on-production
+
 Advertising::Flight.find_each do |flight|
   campaign = flight.campaign
   organization = campaign.listing.advertising_organization
