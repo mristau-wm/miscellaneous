@@ -85,7 +85,7 @@ Advertising::Flight.find_each do |flight|
   }
   Advertising::TransferService::Cash.call(transfer_args) unless dry_run
   
-  puts "CSV summary: #{flight.id},#{adjustment_amount},#{adjustment_type},#{current_lifetime_cap},#{accurate_lifetime_cap},#{initial_lifetime_cap},#{flight.balance},#{flight.revenue_from_deltas}"
+  puts "CSV summary: #{flight.id},#{flight.adzerk_id},#{adjustment_amount},#{adjustment_type},#{current_lifetime_cap},#{accurate_lifetime_cap},#{initial_lifetime_cap},#{flight.balance},#{flight.revenue_from_deltas}"
 rescue => e
   puts "Exception occurred: #{e.class} #{e.message} #{e.backtrace.join("\n")}"
 end
