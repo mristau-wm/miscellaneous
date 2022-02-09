@@ -54,7 +54,7 @@ Advertising::Flight.find_each do |flight|
     end
   else
     puts "Adding \$#{adjustment_amount} to lifetime cap"
-    adjustment_type = 'decrease'
+    adjustment_type = 'increase'
 
     unless dry_run
       Plutus::Entry.create!(
