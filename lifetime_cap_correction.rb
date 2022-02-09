@@ -7,6 +7,7 @@ dry_run = true
 Advertising::Flight.find_each do |flight|
   campaign = flight.campaign
   organization = campaign.listing.advertising_organization
+  initial_lifetime_cap = flight.lifetime_cap
 
   puts "Processing flight #{flight.id} #{'(dry run)' if dry_run}"
 
@@ -36,6 +37,7 @@ Advertising::Flight.find_each do |flight|
   # Apply the correction for that amount
   if current_lifetime_cap > accurate_lifetime_cap
     puts "Subtracting \$#{adjustment_amount} from lifetime cap"
+    adjustment_type = 'decrease'
 
     unless dry_run
       Plutus::Entry.create!(
@@ -52,6 +54,7 @@ Advertising::Flight.find_each do |flight|
     end
   else
     puts "Adding \$#{adjustment_amount} to lifetime cap"
+    adjustment_type = 'decrease'
 
     unless dry_run
       Plutus::Entry.create!(
@@ -80,6 +83,8 @@ Advertising::Flight.find_each do |flight|
     entry_description: 'Lifetime cap force-refresh'
   }
   Advertising::TransferService::Cash.call(transfer_args) unless dry_run
+  
+  puts "CSV summary: #{flight.id},#{adjustment_amount},decrease,#{current_lifetime_cap},#{accurate_lifetime_cap},#{initial_lifetime_cap},#{flight.lifetime_cap},#{flight.balance},#{flight.revenue_from_deltas}"
 rescue => e
   puts "Exception occurred: #{e.class} #{e.message} #{e.backtrace.join("\n")}"
 end
