@@ -26,7 +26,10 @@ Advertising::Flight.find_each do |flight|
     user_id: nil
   }
   transfer_service = Advertising::TransferService::Cash.new(transfer_args)
-  current_lifetime_cap = transfer_service.send(:new_lifetime_cap, flight)
+
+  budget = flight.accounts.sum { |account| transfer_service.send(:adjusted_campaign_budget, account) }
+  adzerk_cap_in_cents = budget.ceil(-2)
+  current_lifetime_cap = adzerk_cap_in_cents / 100.0
 
   puts "Current lifetime cap: \$#{current_lifetime_cap}. Accurate lifetime cap: \$#{accurate_lifetime_cap}"
 
@@ -96,16 +99,6 @@ Advertising::Flight.find_each do |flight|
 
   flight.reload
   flight.cash_account.reload
-
-  # transfer_args = {
-  #   price_value: 0,
-  #   organization_id: organization.id,
-  #   debit_entity: organization,
-  #   credit_entity: flight,
-  #   user_id: nil,
-  #   entry_description: 'Lifetime cap force-refresh'
-  # }
-  # Advertising::TransferService::Cash.call(transfer_args) unless dry_run
 
   unless dry_run
     api.update_flight_cap(flight_id: flight.adzerk_id, amount: rounded_up_accurate_lifetime_cap)
