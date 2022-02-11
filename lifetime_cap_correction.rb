@@ -113,7 +113,7 @@ Advertising::Flight.find_each do |flight|
     final_kevel_lifetime_cap = flight.lifetime_cap
     final_kevel_balance = final_kevel_lifetime_cap - flight.revenue_from_deltas
 
-    csv_summary += "#{final_core_balance},#{final_kevel_lifetime_cap},#{final_kevel_balance}"
+    csv_summary += ",#{final_core_balance},#{final_kevel_lifetime_cap},#{final_kevel_balance}"
   end
 
   puts "CSV summary: #{csv_summary}"
