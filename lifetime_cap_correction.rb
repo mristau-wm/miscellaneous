@@ -39,7 +39,7 @@ Advertising::Flight.find_each do |flight|
   end
 
   # Determine the correction amount
-  adjustment_amount = (current_lifetime_cap - accurate_lifetime_cap).abs
+  adjustment_amount = (current_lifetime_cap - accurate_lifetime_cap).abs * 100 # dollars
 
   # Apply the correction for that amount
   if current_lifetime_cap > accurate_lifetime_cap
@@ -107,7 +107,7 @@ Advertising::Flight.find_each do |flight|
   csv_summary = "#{organization.id},#{flight.id},#{flight.adzerk_id},#{adjustment_amount},#{adjustment_type},#{current_lifetime_cap},#{accurate_lifetime_cap},#{rounded_up_accurate_lifetime_cap},#{initial_lifetime_cap},#{flight.balance},#{flight.revenue_from_deltas},#{whole_dollar_correction_cents}"
 
   unless dry_run
-    sleep 1 # allow for db replication
+    sleep 1 # allow for db replication time
     flight.reload
     final_core_balance = flight.balance
     final_kevel_lifetime_cap = flight.lifetime_cap
