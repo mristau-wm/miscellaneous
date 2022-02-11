@@ -112,7 +112,19 @@ Advertising::Flight.find_each do |flight|
     final_kevel_lifetime_cap = flight.lifetime_cap
     final_kevel_balance = final_kevel_lifetime_cap - flight.revenue_from_deltas
 
-    csv_summary += ",#{final_core_balance},#{final_kevel_lifetime_cap},#{final_kevel_balance}"
+    flight.accounts { |a| a.reload }
+    transfer_args = {
+      price_value: 0,
+      organization_id: organization.id,
+      debit_entity: organization,
+      credit_entity: flight,
+      user_id: nil
+    }
+    transfer_service = Advertising::TransferService::Cash.new(transfer_args)
+
+    final_budget = flight.accounts.sum { |account| transfer_service.send(:adjusted_campaign_budget, account) }
+
+    csv_summary += ",#{final_core_balance},#{final_kevel_lifetime_cap},#{final_kevel_balance},#{final_budget}"
   end
 
   puts "CSV summary: #{csv_summary}"
