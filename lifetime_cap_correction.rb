@@ -28,8 +28,7 @@ Advertising::Flight.find_each do |flight|
   transfer_service = Advertising::TransferService::Cash.new(transfer_args)
 
   budget = flight.accounts.sum { |account| transfer_service.send(:adjusted_campaign_budget, account) }
-  adzerk_cap_in_cents = budget.ceil(-2)
-  current_lifetime_cap = adzerk_cap_in_cents / 100.0
+  current_lifetime_cap = budget / 100.0
 
   puts "Current lifetime cap: \$#{current_lifetime_cap}. Accurate lifetime cap: \$#{accurate_lifetime_cap}"
 
@@ -39,7 +38,7 @@ Advertising::Flight.find_each do |flight|
   end
 
   # Determine the correction amount
-  adjustment_amount = (current_lifetime_cap - accurate_lifetime_cap).abs * 100 # dollars
+  adjustment_amount = (current_lifetime_cap - accurate_lifetime_cap).abs * 100 # convert dollars to cents
 
   # Apply the correction for that amount
   if current_lifetime_cap > accurate_lifetime_cap
