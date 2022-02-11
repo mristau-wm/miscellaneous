@@ -104,7 +104,19 @@ Advertising::Flight.find_each do |flight|
     api.update_flight_cap(flight_id: flight.adzerk_id, amount: rounded_up_accurate_lifetime_cap)
   end
   
-  puts "CSV summary: #{organization.id},#{flight.id},#{flight.adzerk_id},#{adjustment_amount},#{adjustment_type},#{current_lifetime_cap},#{accurate_lifetime_cap},#{rounded_up_accurate_lifetime_cap},#{initial_lifetime_cap},#{flight.balance},#{flight.revenue_from_deltas},#{whole_dollar_correction_cents}"
+  csv_summary = "#{organization.id},#{flight.id},#{flight.adzerk_id},#{adjustment_amount},#{adjustment_type},#{current_lifetime_cap},#{accurate_lifetime_cap},#{rounded_up_accurate_lifetime_cap},#{initial_lifetime_cap},#{flight.balance},#{flight.revenue_from_deltas},#{whole_dollar_correction_cents}"
+
+  unless dry_run
+    sleep 1 # allow for db replication
+    flight.reload
+    final_core_balance = flight.balance
+    final_kevel_lifetime_cap = flight.lifetime_cap
+    final_kevel_balance = final_kevel_lifetime_cap - flight.revenue_from_deltas
+
+    csv_summary += "#{final_core_balance},#{final_kevel_lifetime_cap},#{final_kevel_balance}"
+  end
+
+  puts "CSV summary: #{csv_summary}"
 rescue => e
   puts "Exception occurred: #{e.class} #{e.message} #{e.backtrace.join("\n")}"
 end
