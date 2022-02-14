@@ -167,7 +167,7 @@ def sync_balances(flight, dry_run: true)
 
   if current_lifetime_cap == accurate_lifetime_cap
     puts "Skipping flight. Lifetime cap does not need correction."
-    next
+    return
   end
 
   # Determine the correction amount
