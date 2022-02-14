@@ -27,7 +27,7 @@ def sync_balances(flight, dry_run: true)
 
   puts "Processing flight #{flight.id} #{'(dry run)' if dry_run}"
 
-  if SECOND_PRICE_FLIGHT_IDS.include? flight.id
+  if SECOND_PRICE_FLIGHT_IDS.include? flight.adzerk_id
     puts "This flight has a 2nd Price Auction priority. No correction needed."
     return
   end
