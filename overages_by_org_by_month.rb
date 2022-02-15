@@ -5,12 +5,21 @@
 
 intervals = [
   {start_of_month: '2021-09-01', end_of_month: '2021-10-01'},
-  {start_of_month: '2021-10-01', end_of_month: '2021-11-01'}
+  {start_of_month: '2021-10-01', end_of_month: '2021-11-01'},
+  {start_of_month: '2021-11-01', end_of_month: '2021-12-01'},
+  {start_of_month: '2021-12-01', end_of_month: '2022-01-01'},
+  {start_of_month: '2022-01-01', end_of_month: '2022-02-01'}
 ]
 
 stats = {}
 
 Advertising::Flight.find_each do |flight|
+  campaign = flight.campaign
+  organization = campaign.listing.advertising_organization
+  regions = organization.regions
+  region_ids = regions.pluck(:id)
+  region_names = regions.pluck(:name)
+
   flight_stats = {
     organization_id: flight.campaign.listing.advertising_organization.id,
     organization_sf_account_id: flight.campaign.listing.advertising_organization.salesforce_id,
@@ -32,7 +41,7 @@ Advertising::Flight.find_each do |flight|
     overage_for_the_month = spend_for_the_month - budget_for_the_month > 0 ? spend_for_the_month - budget_for_the_month : 0
 
     flight_stats[:month_stats][interval[:start_of_month]] = overage_for_the_month
-    puts "#{flight_stats[:organization_id]}|#{flight_stats[:organization_sf_account_id]}|#{flight.id}|#{interval[:start_of_month]}|#{overage_for_the_month}"
+    puts "#{flight_stats[:organization_id]}|#{flight_stats[:organization_sf_account_id]}|#{region_ids.join(',')}|#{region_names.join(',')}|#{flight.id}|#{interval[:start_of_month]}|#{overage_for_the_month}"
   end
 
   stats[flight.id] = flight_stats
