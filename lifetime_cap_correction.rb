@@ -43,7 +43,7 @@ def sync_balances(flight, dry_run: true)
     credit_entity: flight,
     user_id: nil
   }
-  transfer_service = Advertising::TransferService::Cash.new(transfer_args)
+  transfer_service = Advertising::TransferService::Cash.new(**transfer_args)
 
   budget = flight.accounts.sum { |account| transfer_service.send(:adjusted_campaign_budget, account) }
   current_lifetime_cap = budget / 100.0
