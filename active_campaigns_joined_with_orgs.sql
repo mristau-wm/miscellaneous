@@ -1,7 +1,7 @@
 -- Example result set:
 -- organization_id	organization_name	organization_salesforce_id	campaign_id	campaign_name	campaign_adzerk_id	listing_name	listing_type	auto_transfer_amount
--- 299	CAKE	0013400001Vo9jXAAR	2674	Self-service: Broadway Cannabis Market - Portland West	13802999	Broadway Cannabis Market	Dispensary	64800
--- 641	BLAZE ON DEMAND	0010y00001k8AVoAAM	6304	Self-service: The Cannabis Depot - Pueblo	49402135	The Cannabis Depot	Dispensary	20000
+-- 4736	Lucky Lion Halsey	0010y00001dRhz8AAC	2806	Self-service: Lucky Lion - Eugene - Eugene / Springfield	15473086	Lucky Lion - Eugene	Dispensary	5000
+-- 6531	Broadway Cannabis Market	0010y00001fl8PkAAI	2674	Self-service: Broadway Cannabis Market - Portland West	13802999	Broadway Cannabis Market	Dispensary	64800
 
 select org.id as organization_id
 , org.name as organization_name
@@ -14,8 +14,7 @@ select org.id as organization_id
 , c.auto_transfer_amount
 from advertising_campaigns c
 join listings l on (l.wmid = c.wmid)
-join ownerships own on (own.entity_id = l.id)
-join organizations org on (org.id = own.organization_id)
+join organizations org on (org.id = l.organization_id)
 where c.auto_transfer_enabled is true
 and c.active is true
 and c.start_date <= now()
