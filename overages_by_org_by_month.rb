@@ -12,6 +12,7 @@ intervals = [
 ]
 
 stats = {}
+target_regions = [3261,3260,3259,173,281,3292,385,386,575,2267,574]
 
 Advertising::Flight.find_each do |flight|
   campaign = flight.campaign
@@ -19,6 +20,8 @@ Advertising::Flight.find_each do |flight|
   regions = organization.regions
   region_ids = regions.pluck(:id)
   region_names = regions.pluck(:name)
+
+  next if (target_regions & region_ids).empty?
 
   flight_stats = {
     organization_id: flight.campaign.listing.advertising_organization.id,
