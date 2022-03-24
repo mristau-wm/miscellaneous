@@ -14,6 +14,7 @@ from (
     , ( (running_credits_total - running_lifetime_cap_adjustment_credit_total) - (running_nonsettlement_debits_total - running_lifetime_cap_adjustment_debit_total) ) as running_adjusted_kevel_budget
     , running_revenue_total
     , running_credits_total
+    , running_debits_total
     , running_nonsettlement_debits_total
     , running_lifetime_cap_adjustment_credit_total
     , running_lifetime_cap_adjustment_debit_total
@@ -26,7 +27,7 @@ from (
             join plutus_amounts am on (am.account_id = ac.id)
             join plutus_entries e on (e.id = am.entry_id)
             where ac.accountable_type = 'Advertising::Flight'
-            and ac.accountable_id = 4062 -- core flight ID
+            and ac.accountable_id = 1618 -- core flight ID
             and am.type = 'Plutus::CreditAmount'
             and e.created_at <= d.created_at
         ) as running_credits_total
@@ -36,7 +37,17 @@ from (
             join plutus_amounts am on (am.account_id = ac.id)
             join plutus_entries e on (e.id = am.entry_id)
             where ac.accountable_type = 'Advertising::Flight'
-            and ac.accountable_id = 4062 -- core flight ID
+            and ac.accountable_id = 1618 -- core flight ID
+            and am.type = 'Plutus::DebitAmount'
+            and e.created_at <= d.created_at
+        ) as running_debits_total
+        , (
+            select coalesce (sum(am.amount), 0)
+            from plutus_accounts ac
+            join plutus_amounts am on (am.account_id = ac.id)
+            join plutus_entries e on (e.id = am.entry_id)
+            where ac.accountable_type = 'Advertising::Flight'
+            and ac.accountable_id = 1618 -- core flight ID
             and am.type = 'Plutus::DebitAmount'
             and e.description not like 'advertising.revenue_settlement%'
             and e.created_at <= d.created_at
@@ -47,7 +58,7 @@ from (
             join plutus_amounts am on (am.account_id = ac.id)
             join plutus_entries e on (e.id = am.entry_id)
             where ac.accountable_type = 'Advertising::Flight'
-            and ac.accountable_id = 4062 -- core flight ID
+            and ac.accountable_id = 1618 -- core flight ID
             and am.type = 'Plutus::CreditAmount'
             and e.description = 'advertising.lifetime_cap_adjustment.credit_exclusion'
             and e.created_at <= d.created_at
@@ -58,15 +69,15 @@ from (
             join plutus_amounts am on (am.account_id = ac.id)
             join plutus_entries e on (e.id = am.entry_id)
             where ac.accountable_type = 'Advertising::Flight'
-            and ac.accountable_id = 4062 -- core flight ID
+            and ac.accountable_id = 1618 -- core flight ID
             and am.type = 'Plutus::DebitAmount'
             and e.description = 'advertising.lifetime_cap_adjustment.debit_exclusion'
             and e.created_at <= d.created_at
         ) as running_lifetime_cap_adjustment_debit_total
         from advertising_flight_deltas d
-        where d.advertising_flight_id = 4062 -- core flight ID
+        where d.advertising_flight_id = 1618 -- core flight ID
         and d.revenue > 0
     ) sub1
 ) sub2
-where running_core_balance <> running_adjusted_kevel_balance -- optional
+where running_core_balance <> running_adjusted_kevel_balance
 ;
