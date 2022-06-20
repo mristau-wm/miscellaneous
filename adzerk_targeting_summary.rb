@@ -1,5 +1,6 @@
 # Run in console
 # Prints CSV to summarize flight targeting
+# Summary sheet: https://docs.google.com/spreadsheets/d/1MY2N5Abo2lERhRWladYuW9RZB0rEDwP-Spx7sqqEmWA
 
 api = Adzerk::Api.new
 advertisers = api.all_advertisers
