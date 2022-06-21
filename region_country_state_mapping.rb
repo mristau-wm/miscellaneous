@@ -45,6 +45,8 @@ Region.find_each do |region|
   end
 end
 
+# Results below for Acceptance (Jun 21, 2022)
+
 # country_mapping
 {"us"=>
   [1,
