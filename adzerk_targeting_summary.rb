@@ -26,7 +26,7 @@ advertisers.each do |advertiser|
         sanitized_custom_targeting = flight.custom_targeting.gsub("\n", '\n').gsub(' ', '')
       end
 
-      puts "\"#{flight.id}\",\"#{flight.priority_id}\",\"#{sanitized_custom_targeting}\",\"#{sanitized_keywords}\""
+      puts "\"#{flight.id}\",\"#{flight.priority_id}\",\"#{flight.is_active}\",\"#{sanitized_custom_targeting}\",\"#{sanitized_keywords}\""
     end
   end
 end
