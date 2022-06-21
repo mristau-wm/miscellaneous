@@ -17,13 +17,13 @@ advertisers.each do |advertiser|
       sanitized_keywords = ''
 
       if flight.keywords
-        sanitized_keywords = flight.keywords.gsub("\n", '\n').gsub(' ', '')
+        sanitized_keywords = flight.keywords.strip.gsub("\n", '\n')
       end
 
       sanitized_custom_targeting = ''
 
       if flight.custom_targeting
-        sanitized_custom_targeting = flight.custom_targeting.gsub("\n", '\n').gsub(' ', '')
+        sanitized_custom_targeting = flight.custom_targeting.strip.gsub("\n", '\n')
       end
 
       puts "\"#{flight.id}\",\"#{flight.priority_id}\",\"#{flight.is_active}\",\"#{sanitized_custom_targeting}\",\"#{sanitized_keywords}\""
