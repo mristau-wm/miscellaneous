@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# install teleport
+TSH_VERSION="v7.3.3"
+PROXY_FQDN="teleport.internal-weedmaps.com"
+CLUSTER=$1
+ENVIRONMENT=$2
+REQUEST_ACCESS=$3
+
+install_kubectl() {
+    if [ ! `which kubectl` ]; then
+        echo "Installing kubectl"
+        wget -O /usr/local/bin/kubectl "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
+        chmod 755 /usr/local/bin/kubectl
+    fi
+}
+install_teleport () {
+    if [ ! `which brew` ]; then
+        echo "Homebrew is not installed, please ensure its set up to continue"
+        exit 1
+    fi
+
+    if [ ! `which tsh` ]; then
+        echo "Installing Teleport"
+        wget -O /usr/local/bin/tsh https://provision-weedmaps.s3-us-west-2.amazonaws.com/bin/tsh_${TSH_VERSION} --no-check-certificate
+        chmod 755 /usr/local/bin/tsh
+    elif [[  $(tsh version | awk '{print $2}') != "${TSH_VERSION}" ]]; then
+        echo "Clearing Teleport Cache - Deploying Teleport"
+        rm ~/.kube/config
+        rm -rf ~/.tsh
+        brew uninstall teleport
+        wget -O /usr/local/bin/tsh https://provision-weedmaps.s3-us-west-2.amazonaws.com/bin/tsh_${TSH_VERSION} --no-check-certificate
+        chmod 755 /usr/local/bin/tsh
+    fi
+}
+#connect to kube cluster
+connect() {
+    if [[ -z ${CLUSTER} ]] || [[ -z ${ENVIRONMENT} ]]; then
+        cat << EOF 
+Usage:   wmtsh [cluster] [environment]
+Example(s): 
+        wmtsh weedmaps acceptance
+        wmtsh weedmaps production
+        wmtsh retail staging
+
+Usage in Production Only:  
+    wmtsh [cluster] production show-request  # Show the status for the Prod-Edit request 
+    wmtsh [cluster] production request-edit  # Request Prod-Edit access PENDING Jira ticket approval
+    wmtsh [cluster] production assume-edit   # Assume the Prod-Edit Role if request is APPROVED
+EOF
+        exit 1
+
+    elif [[ -n ${REQUEST_ACCESS} ]] && [[ "$ENVIRONMENT" != "production" ]] ; then
+        cat << EOF
+Usage in Production Only:
+    wmtsh [cluster] production show-request  # Show the status for the Prod-Edit request 
+    wmtsh [cluster] production request-edit  # Request Prod-Edit access PENDING Jira ticket approval
+    wmtsh [cluster] production assume-edit   # Assume the Prod-Edit Role if request is APPROVED
+EOF
+
+    elif [[ ("$ENVIRONMENT" == "production" && "$REQUEST_ACCESS" == "request-edit" ) && ( "$CLUSTER" == "retail" || "$CLUSTER" == "weedmaps" )  ]]; then
+        tsh --proxy=${PROXY_FQDN} kube login eks-${CLUSTER}-${ENVIRONMENT}
+        tsh request new --roles=prod-edit
+        tsh request ls | head -n3
+    elif [[ ("$ENVIRONMENT" == "production" && "$REQUEST_ACCESS" == "assume-edit" ) && ( "$CLUSTER" == "retail" || "$CLUSTER" == "weedmaps" )  ]]; then
+        tsh --proxy=${PROXY_FQDN} kube login eks-${CLUSTER}-${ENVIRONMENT}
+        tsh login --request-id=$(tsh request ls | grep prod-edit | awk '{print $1}' | head -n1)
+    elif [[ ("$ENVIRONMENT" == "production" && "$REQUEST_ACCESS" == "show-request" ) && ( "$CLUSTER" == "retail" || "$CLUSTER" == "weedmaps" )  ]]; then
+        tsh --proxy=${PROXY_FQDN} kube login eks-${CLUSTER}-${ENVIRONMENT}
+        tsh request ls | grep $(tsh status | grep "Logged in as" | awk '{print $4}') | head -n1
+    else
+        tsh --proxy=${PROXY_FQDN} kube login eks-${CLUSTER}-${ENVIRONMENT}
+        tsh status
+    fi
+}
+
+
+install_kubectl
+install_teleport
+connect
