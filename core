@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+STACK_NAME=core
+SERVICE_NAME=utility
+
+if [ "$1" != "acceptance" -a "$1" != "staging" -a "$1" != "production" ]; then
+  echo "Specify an environment - acceptance, staging, or production?"
+  exit 1
+fi
+ENVIRONMENT=$1
+
+if [ "$2" = "console" -o "$2" = "c" ]; then
+  EXEC_COMMAND="bin/rails console"
+elif [ "$2" = "shell" -o "$2" = "s" ]; then
+  EXEC_COMMAND=bash
+elif [ "$2" == "vars" ]; then
+  EXEC_COMMAND="env"
+else
+  echo "Specify a command - console, shell, vars?"
+  exit 1
+fi
+
+wmtsh weedmaps $ENVIRONMENT
+POD_NAME=`kubectl -n $STACK_NAME get pods -l app.kubernetes.io/name=$STACK_NAME-$SERVICE_NAME -o jsonpath='{.items[0].metadata.name}'`
+kubectl -n core exec -it $POD_NAME -- /vault/vault-env $EXEC_COMMAND
+exit 0
