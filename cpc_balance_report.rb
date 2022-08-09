@@ -2,6 +2,7 @@
 # Prints CSV report of $ balances (cash and promo) at the campaign and organization level
 # Example report: https://docs.google.com/spreadsheets/d/1gn29Tfle2-Pbf-JTgcQAH3KXs2jf3Wwxe2VIt8rtKvI
 
+# The IDs below are based on https://weedmaps.atlassian.net/l/cp/wYdmRdXp
 co_region_ids = [173]
 mi_region_ids = [281]
 or_region_ids = [385,386,574,575,2267]
