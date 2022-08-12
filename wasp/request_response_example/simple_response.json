@@ -1,0 +1,40 @@
+{
+    "decisions": {
+        "homepage-carousel-1": [
+            {
+                "adId": 535,
+                "creativeId": 535,
+                "flightId": 288,
+                "campaignId": 160,
+                "advertiserId": 2473,
+                "priorityId": 1,
+                "clickUrl": "https://assets.weedmaps.com/pixel?etype=ctr&payload=eyJ1dWlkIjoiYTAzZjM3OTktN2U1Yy00YmVjLWJlMDktNDFmM2EzN2MwYmJkIiwiZmxpZ2h0X2lkIjoyODgsImNhbXBhaWduX2lkIjoxNjAsImNyZWF0aXZlX2lkIjo1MzUsImNsaWNrX3VybCI6Imh0dHBzOi8vd2VlZG1hcHMuY29tL2Rpc3BlbnNhcmllcy9sYS1ib3ZlZGEtZGlzcGVuc2FyeSIsInpvbmVzIjoiMjExODcyIiwiZGl2TmFtZSI6ImhvbWVwYWdlLWNhcm91c2VsLTEifQ==",
+                "contents": [
+                    {
+                        "type": "raw",
+                        "data": {
+                            "imageURL": "https://images.weedmaps.com/renderer/original/a59c70813a519355c9e4be34894e8fbb318f279c-1660241525433-Tablet.png?auto=compress,format&cs=tinysrgb",
+                            "title": "Tablet",
+                            "width": "831",
+                            "height": "400",
+                            "ctAsset639x232": "https://images.weedmaps.com/renderer/original/29d8c73bf5ea240bcb0f95e5fd03ef11eafc3904-1660241525434-Mobile.png?auto=compress,format&cs=tinysrgb",
+                            "ctAsset1440x400": "https://images.weedmaps.com/renderer/original/68293a3b82bd9a5bf53d73f34e49da53148572f0-1660241525432-Desktop.png?auto=compress,format&cs=tinysrgb",
+                            "ctClickRoute": "https://weedmaps.com/dispensaries/la-boveda-dispensary",
+                            "ctAsset375x232": "https://images.weedmaps.com/renderer/original/9017ac4f9aecfb6042561e04c80dbeea8f86df5a-1660241525435-MobileSmall.png?auto=compress,format&cs=tinysrgb",
+                            "ctAsset831x400": "https://images.weedmaps.com/renderer/original/a59c70813a519355c9e4be34894e8fbb318f279c-1660241525433-Tablet.png?auto=compress,format&cs=tinysrgb"
+                        }
+                    }
+                ],
+                "impressionUrl": "https://assets.weedmaps.com/pixel?etype=imp&payload=eyJ1dWlkIjoiYTAzZjM3OTktN2U1Yy00YmVjLWJlMDktNDFmM2EzN2MwYmJkIiwiZmxpZ2h0X2lkIjoyODgsImNhbXBhaWduX2lkIjoxNjAsImNyZWF0aXZlX2lkIjo1MzUsImNsaWNrX3VybCI6Imh0dHBzOi8vd2VlZG1hcHMuY29tL2Rpc3BlbnNhcmllcy9sYS1ib3ZlZGEtZGlzcGVuc2FyeSIsInpvbmVzIjoiMjExODcyIiwiZGl2TmFtZSI6ImhvbWVwYWdlLWNhcm91c2VsLTEifQ==",
+                "pricing": {
+                    "rateType": 4
+                },
+                "creativeName": "NEW",
+                "advertiserName": "La Boveda Dispensary",
+                "campaignName": "La Boveda Dispensary - August 2022",
+                "flightName": "Carousel 1: La Boveda Dispensary (8/11-8/13)"
+            }
+        ]
+    },
+    "uuid": "a03f3799-7e5c-4bec-be09-41f3a37c0bbd"
+}
