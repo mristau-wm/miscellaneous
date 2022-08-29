@@ -123,7 +123,7 @@ category_insights_4 AS (
   left join categories c on (c.id = c3.parent_category_id)
 ),
 
-category_insights_5 AS (
+user_insights_by_category AS (
 
 select advertiser_id
   , category_id
@@ -135,15 +135,15 @@ select advertiser_id
 from category_insights_4 c4
 )
 
-select parent_category_id, parent_category_name, sum(user_impressions)
-from category_insights_5
+select parent_category_id, parent_category_name, sum(user_impressions) "total_user_impressions"
+from user_insights_by_category
 where advertiser_id = 410
-and parent_category_id in (-1,2,3,4,5)
+and parent_category_id <> 0
 group by parent_category_id, parent_category_name
-order by sum(user_impressions) desc
+order by 3 desc
 ;
 
--- parent_category_id	parent_category_name	sum
+-- parent_category_id	parent_category_name	total_user_impressions
 -- 2	Flower	14
 -- 3	Concentrates	8
 -- -1	Other	4
