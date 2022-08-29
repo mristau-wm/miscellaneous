@@ -37,6 +37,70 @@ category_insights_4 AS (
     , c3.parent_category_id
     , coalesce(c.name, c3.category_name) "parent_category_name"
     , c3.user_impressions
+    , row_number() over (partition by advertiser_id, parent_category_id order by user_impressions desc) as ranking
+  from category_insights_3 c3
+  left join categories c on (c.id = c3.parent_category_id)
+)
+
+select advertiser_id
+  , category_id
+  , category_name
+  , case when parent_category_id in (0,2,3,4,5) then parent_category_id else -1 end "parent_category_id"
+  , case when parent_category_name in ('Flower', 'Concentrates', 'Vape Pens', 'Edibles') then parent_category_name else 'Other' end "parent_category_name"
+  , user_impressions
+  , ranking
+from category_insights_4 c4
+where ranking <= 5
+order by advertiser_id asc, user_impressions desc
+;
+
+-- advertiser_id	category_id	category_name	parent_category_id	parent_category_name	user_impressions	ranking
+-- 410	2	Flower	0	Flower	23	1
+-- 410	3	Concentrates	0	Concentrates	9	2
+-- 410	1497	Pre Roll	2	Flower	9	1
+
+
+----------------------------
+
+WITH
+category_insights_1 AS (
+  select date_key
+    , advertiser_id
+    , flight_id
+    , i.user_id
+    , arr.position as "category_position"
+    , arr.item_object as "category_data"
+  from advertising_user_insights_90_days i
+  join user_affinities a on (i.user_id = a.user_id)
+  , jsonb_array_elements(a.categories) with ordinality arr(item_object, position)
+  where a.categories <> '{}' and a.categories <> '[]'
+),
+
+category_insights_2 AS (
+  select advertiser_id
+    , (category_data->>'value')::int "category_id"
+    , count(user_id) "user_impressions"
+  from category_insights_1
+  group by advertiser_id, category_id
+),
+
+category_insights_3 AS (
+  select c2.advertiser_id
+    , c2.category_id
+    , c.name "category_name"
+    , c.parent_id "parent_category_id"
+    , c2.user_impressions
+  from category_insights_2 c2
+  right join categories c on (c.id = c2.category_id)
+),
+
+category_insights_4 AS (
+  select c3.advertiser_id
+    , c3.category_id
+    , c3.category_name
+    , c3.parent_category_id
+    , coalesce(c.name, c3.category_name) "parent_category_name"
+    , c3.user_impressions
     , row_number() over (partition by advertiser_id, parent_category_id order by user_impressions desc) as advertiser_parent_category_rank
   from category_insights_3 c3
   left join categories c on (c.id = c3.parent_category_id)
