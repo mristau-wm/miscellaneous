@@ -1,3 +1,91 @@
+WITH category_insights_1 AS (
+  select date_key
+    , advertiser_id
+    , flight_id
+    , i.user_id
+    , arr.position as "category_position"
+    , arr.item_object as "category_data"
+  from advertising_user_insights_90_days i
+  join user_affinities a on (i.user_id = a.user_id)
+  , jsonb_array_elements(a.categories) with ordinality arr(item_object, position)
+  where a.categories <> '{}' and a.categories <> '[]'
+),
+
+category_insights_2 AS (
+  select advertiser_id
+    , (category_data->>'value')::int "category_id"
+    , count(user_id) "user_impressions"
+  from category_insights_1
+  group by advertiser_id, category_id
+),
+
+category_insights_3 AS (
+  select c2.advertiser_id
+    , c2.category_id
+    , c.name "category_name"
+    , c.parent_id "parent_category_id"
+    , c2.user_impressions
+  from category_insights_2 c2
+  right join categories c on (c.id = c2.category_id)
+),
+
+category_insights_4 AS (
+  select c3.advertiser_id
+    , c3.category_id
+    , c3.category_name
+    , c3.parent_category_id
+    , coalesce(c.name, c3.category_name) "parent_category_name"
+    , c3.user_impressions
+    , row_number() over (partition by advertiser_id, parent_category_id order by user_impressions desc) as ranking
+  from category_insights_3 c3
+  left join categories c on (c.id = c3.parent_category_id)
+),
+
+total_impressions_by_advertiser as (
+  select advertiser_id
+    , sum(user_impressions) "total_user_impressions"
+  from category_insights_4
+  group by advertiser_id
+),
+
+category_insights_5 AS (
+  select c4.advertiser_id
+    , category_id
+    , category_name
+    , parent_category_id
+    , parent_category_name
+    , case when parent_category_id in (0,2,3,4,5) then parent_category_id else -1 end "parent_category_partition_id"
+    , case when parent_category_name in ('Flower', 'Concentrates', 'Vape Pens', 'Edibles') then parent_category_name else 'Other' end "parent_category_partition_name"
+    , user_impressions
+    , round(( user_impressions / total_user_impressions)::numeric, 2 ) "percent_user_impressions"
+  from category_insights_4 c4
+  join total_impressions_by_advertiser a on (a.advertiser_id = c4.advertiser_id)
+),
+
+user_insights_by_category AS (
+  select advertiser_id
+    , category_id
+    , category_name
+    , parent_category_id
+    , parent_category_name
+    , parent_category_partition_id
+    , parent_category_partition_name
+    , user_impressions
+    , percent_user_impressions
+    , row_number() over (partition by advertiser_id, parent_category_partition_id order by user_impressions desc) as ranking
+  from category_insights_5 c5
+)
+
+select *
+from user_insights_by_category
+-- and parent_category_id <> 0 -- for L2 data
+-- and parent_category_id = 0 -- for L1 category data
+order by advertiser_id, parent_category_partition_id, ranking
+;
+
+
+--------------------
+
 WITH
 category_insights_1 AS (
   select date_key
