@@ -1,5 +1,13 @@
 require 'aws-sdk-athena'
 
+# Example usage:
+# 
+# Dry run:
+# TARGET_TABLE=ws_fastly_session_clicks ruby athena_queries_to_correct_click_anomalies.rb
+#
+# Actual run (this will execute the queries):
+# TARGET_TABLE=ws_fastly_session_clicks EXECUTE=true ruby athena_queries_to_correct_click_anomalies.rb
+
 # ============================================
 # This script requires that you have assumed the ad_server_athena_rw role
 # To do so, follow the steps below
