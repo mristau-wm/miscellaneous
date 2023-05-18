@@ -80,7 +80,7 @@ def run_query(sql)
       puts 'Query is still running. Waiting...'
       sleep 3
     else
-      puts "Unxpected query status: #{status}"
+      puts "Unexpected query status: #{status}"
       break
     end
   end
